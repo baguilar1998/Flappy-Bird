@@ -3,6 +3,7 @@ package com.briankenjiaguilar.flappybird;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -13,8 +14,9 @@ public class FlappyBird extends ApplicationAdapter {
 	Texture backgroundImg, topTube, bottomTube;
 	Texture [] flappyBird;
 	int flapState, gameState;
-	float birdY, velocity, gravity, gap, tubeOffset, maxTubOffset;
+	float birdY, velocity, gravity, gap, tubeOffset, maxTubOffset, width, height, aspectRatio;
 	Random randomGenerator;
+	OrthographicCamera camera;
 
 	@Override
 	public void create () {
@@ -31,14 +33,22 @@ public class FlappyBird extends ApplicationAdapter {
 		velocity = 0;
 		gravity = 2;
 		gap = 400;
-		maxTubOffset = Gdx.graphics.getHeight()/2 - gap/2 - 100;
 		randomGenerator = new Random();
+
+		width = 1000;
+		aspectRatio = (float)Gdx.graphics.getHeight() / (float)Gdx.graphics.getWidth();
+		height = width * aspectRatio;
+		maxTubOffset = height - gap/2 - 100;
+
+		camera = new OrthographicCamera(width,height);
+		camera.position.set(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight() / 2, 0);
+		camera.update();
 	}
 
 	@Override
 	public void render () {
 
-
+		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		// Draws the background
 		batch.draw(backgroundImg,0,0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -47,7 +57,7 @@ public class FlappyBird extends ApplicationAdapter {
 
 			if (Gdx.input.justTouched()) {
 				velocity = -30;
-				tubeOffset = (randomGenerator.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - gap - 200);
+				tubeOffset = (randomGenerator.nextFloat() - 0.5f) * (height - gap - 200);
 			}
 
 
@@ -56,7 +66,7 @@ public class FlappyBird extends ApplicationAdapter {
 
 
 			// Development purposes
-			if (birdY > 0 || velocity < 0) {
+			if (birdY > 420 || velocity < 0) {
 				// Makes the bird fall faster when it is not tapped
 				velocity += gravity;
 				birdY -= velocity;
