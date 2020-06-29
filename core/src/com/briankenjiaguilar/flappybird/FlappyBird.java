@@ -6,12 +6,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.util.Random;
+
 public class FlappyBird extends ApplicationAdapter {
 	SpriteBatch batch;
-	Texture backgroundImg;
+	Texture backgroundImg, topTube, bottomTube;
 	Texture [] flappyBird;
 	int flapState, gameState;
-	float birdY, velocity, gravity;
+	float birdY, velocity, gravity, gap, tubeOffset, maxTubOffset;
+	Random randomGenerator;
 
 	@Override
 	public void create () {
@@ -19,23 +22,37 @@ public class FlappyBird extends ApplicationAdapter {
 		flapState = 0;
 		gameState = 0;
 		backgroundImg = new Texture("bg.png");
+		topTube = new Texture("toptube.png");
+		bottomTube = new Texture("bottomtube.png");
 		flappyBird = new Texture[2];
 		flappyBird[0] = new Texture("bird.png");
 		flappyBird[1] = new Texture("bird2.png");
 		birdY = Gdx.graphics.getHeight()/2 - flappyBird[0].getHeight()/2;
 		velocity = 0;
 		gravity = 2;
+		gap = 400;
+		maxTubOffset = Gdx.graphics.getHeight()/2 - gap/2 - 100;
+		randomGenerator = new Random();
 	}
 
 	@Override
 	public void render () {
 
 
+		batch.begin();
+		// Draws the background
+		batch.draw(backgroundImg,0,0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
 		if (gameState != 0) {
 
 			if (Gdx.input.justTouched()) {
 				velocity = -30;
+				tubeOffset = (randomGenerator.nextFloat() - 0.5f) * (Gdx.graphics.getHeight() - gap - 200);
 			}
+
+
+			batch.draw(topTube, Gdx.graphics.getWidth()/2 - topTube.getWidth()/2, Gdx.graphics.getHeight()/2 + gap/2 + tubeOffset);
+			batch.draw(bottomTube, Gdx.graphics.getWidth()/2 - bottomTube.getWidth()/2, Gdx.graphics.getHeight()/2 - gap/2 - bottomTube.getHeight() + tubeOffset);
 
 
 			// Development purposes
@@ -59,12 +76,6 @@ public class FlappyBird extends ApplicationAdapter {
 		} else {
 			flapState = 0;
 		}
-
-		// Starts rendering sprites
-		batch.begin();
-
-		// Draws the background
-		batch.draw(backgroundImg,0,0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		// Animates the bird flapping based off of the flap state
 		batch.draw(
